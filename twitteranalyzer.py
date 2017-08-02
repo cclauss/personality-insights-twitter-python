@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+
+from __future__ import print_function
 import sys
 import requests
 import json
@@ -15,7 +18,7 @@ def convert_status_to_pi_content_item(s):
         'language': s.lang,
         'content': s.text,
         'created': s.created_at_in_seconds,
-        'reply': (s.in_reply_to_status_id == None),
+        'reply': (s.in_reply_to_status_id is None),
         'forward': False
     }
 
@@ -36,14 +39,16 @@ for x in range(0, 16):  # Pulls max number of tweets from an account
                                                        count=200,
                                                        include_rts=False)
         status_count = len(statuses_portion)
-        max_id = statuses_portion[status_count - 1].id - 1  # get id of last tweet and bump below for next tweet set
+        # get id of last tweet and bump below for next tweet set
+        max_id = statuses_portion[status_count - 1].id - 1
     else:
         statuses_portion = twitter_api.GetUserTimeline(screen_name=handle,
                                                        count=200,
                                                        max_id=max_id,
                                                        include_rts=False)
         status_count = len(statuses_portion)
-        max_id = statuses_portion[status_count - 1].id - 1  # get id of last tweet and bump below for next tweet set
+        # get id of last tweet and bump below for next tweet set
+        max_id = statuses_portion[status_count - 1].id - 1
     for status in statuses_portion:
         statuses.append(status)
 
@@ -59,5 +64,6 @@ r = requests.post(config.pi_url + '/v2/profile',
                   data=json.dumps(pi_content_items)
                   )
 
-print("Profile Request sent. Status code: %d, content-type: %s" % (r.status_code, r.headers['content-type']))
-print json.loads(r.text)
+print("Profile Request sent. Status code: %d, content-type: %s" %
+      (r.status_code, r.headers['content-type']))
+print(json.loads(r.text))
